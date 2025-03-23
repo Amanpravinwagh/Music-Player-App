@@ -1,0 +1,118 @@
+MainActivity.java
+package com.example.musicapp;
+
+import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+    private MediaPlayer mediaPlayer;
+    private Button btnPlay, btnPause, btnStop, btnNext, btnPrevious;
+    private TextView songTitle;
+
+    private int currentIndex = 0;
+
+    // Array of song resources (Add your songs in res/raw folder)
+    private int[] songList = {
+            R.raw.song1, // Replace with actual song file names
+            R.raw.song2,
+            R.raw.song3
+    };
+
+    private String[] songNames = {
+            "Song 1",
+            "Song 2",
+            "Song 3"
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        btnPlay = findViewById(R.id.btnPlay);
+        btnPause = findViewById(R.id.btnPause);
+        btnStop = findViewById(R.id.btnStop);
+        btnNext = findViewById(R.id.btnNext);
+        btnPrevious = findViewById(R.id.btnPrevious);
+        songTitle = findViewById(R.id.songTitle);
+
+        // Initialize MediaPlayer with the first song
+        mediaPlayer = MediaPlayer.create(this, songList[currentIndex]);
+        songTitle.setText(songNames[currentIndex]);
+
+        btnPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mediaPlayer.isPlaying()) {
+                    mediaPlayer.start();
+                }
+            }
+        });
+
+        btnPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                }
+            }
+        });
+
+        btnStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                    mediaPlayer.prepareAsync();
+                }
+            }
+        });
+
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playNextSong();
+            }
+        });
+
+        btnPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playPreviousSong();
+            }
+        });
+    }
+
+    private void playNextSong() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
+        currentIndex = (currentIndex + 1) % songList.length; // Move to the next song
+        mediaPlayer = MediaPlayer.create(this, songList[currentIndex]);
+        songTitle.setText(songNames[currentIndex]);
+        mediaPlayer.start();
+    }
+
+    private void playPreviousSong() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
+        currentIndex = (currentIndex - 1 + songList.length) % songList.length; // Move to the previous song
+        mediaPlayer = MediaPlayer.create(this, songList[currentIndex]);
+        songTitle.setText(songNames[currentIndex]);
+        mediaPlayer.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+}
